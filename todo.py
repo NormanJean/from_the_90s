@@ -12,11 +12,6 @@ class Task:
             self.priority = priority
             self.status = status
 
-class Scheduler:
-    def __init__(self):
-        with sqlite3.connect("todo_db.db") as self.conn:
-            self.cursor = self.conn.cursor()
-
     def add_task(self):
         pass
 
@@ -57,6 +52,3 @@ class Scheduler:
 if __name__ == '__main__':
     create_db.create_db()
     task = Task()
-    scheduler = Scheduler()
-
-
