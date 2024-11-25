@@ -1,12 +1,22 @@
+import sqlite3
+import create_db
+
+
 class Task:
-    def __init__(self, name, description, deadline, priority, status):
-        self.name = name
-        self.description = description
-        self.deadline = deadline
-        self.priority = priority
-        self.status = status
+    def __init__(self, name = '', description = '', deadline = '', priority = 3, status = False):
+            with sqlite3.connect("todo_db.db") as self.conn:
+                self.cursor = self.conn.cursor()
+            self.name = name
+            self.description = description
+            self.deadline = deadline
+            self.priority = priority
+            self.status = status
 
 class Scheduler:
+    def __init__(self):
+        with sqlite3.connect("todo_db.db") as self.conn:
+            self.cursor = self.conn.cursor()
+
     def add_task(self):
         pass
 
@@ -45,4 +55,8 @@ class Scheduler:
 
 
 if __name__ == '__main__':
+    create_db.create_db()
     task = Task()
+    scheduler = Scheduler()
+
+
