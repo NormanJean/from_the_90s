@@ -1,7 +1,3 @@
-import sqlite3
-import create_db
-
-
 class Task:
     def __init__(self, name, description, deadline, priority, status):
         self.name = name
