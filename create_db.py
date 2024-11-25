@@ -1,8 +1,9 @@
 import sqlite3
 
+
 def create_db():
-    with sqlite3.connect("todo_db.db") as conn:
-        cursor = conn.cursor()
+    with sqlite3.connect("todo_db.db") as connection:
+        cursor = connection.cursor()
         try:
             cursor.execute(
                 """
@@ -10,14 +11,14 @@ def create_db():
                 id integer PRIMARY KEY AUTOINCREMENT,
                 name varchar(64) NOT NULL,
                 description text,
-                deadline varchar(16) NOT NULL,  
+                deadline varchar(16) NOT NULL,
                 priority integer DEFAULT 3,
-                status integer DEFAULT 0 
-                )
-            """
+                status integer DEFAULT 0)
+                """
             )
         except:
             pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     create_db()

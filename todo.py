@@ -1,9 +1,9 @@
 import sqlite3
-import create_db
+from create_db  import create_db
 
 
 class Task:
-    def __init__(self, name = '', description = '', deadline = '', priority = 3, status = False):
+    def __init__(self, name = '', description = '', deadline = '', priority = 3, status = None):
             with sqlite3.connect("todo_db.db") as self.conn:
                 self.cursor = self.conn.cursor()
             self.name = name
@@ -50,5 +50,16 @@ class Task:
 
 
 if __name__ == '__main__':
-    create_db.create_db()
+    create_db()
     task = Task()
+
+'''
+Название задачи не должно повторяться в том случае, если у них один дэдлайн
+по нескольким задачам может быть один дэдлайн
+задачи могут иметь одно название
+дэдлайн можно двигать, если текущая дата не наступила
+приоритет от 1-5
+отправка уведомлений на почту
+фильтровать по выполненым, по датам, по просроченным
+
+'''
