@@ -3,14 +3,14 @@ from create_db  import create_db
 
 
 class Task:
-    def __init__(self, name = '', description = '', deadline = '', priority = 3, status = None):
+    def __init__(self):
             with sqlite3.connect("todo_db.db") as self.conn:
                 self.cursor = self.conn.cursor()
-            self.name = name
-            self.description = description
-            self.deadline = deadline
-            self.priority = priority
-            self.status = status
+            self.name = None
+            self.description = None
+            self.deadline = None
+            self.priority = 3
+            self.status = None
 
     def add_task(self):
         pass
