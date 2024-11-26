@@ -9,9 +9,9 @@ def create_db():
                 """
                 CREATE TABLE tasks (
                 id integer PRIMARY KEY AUTOINCREMENT,
-                name varchar(64) NOT NULL,
+                name text NOT NULL,
                 description text,
-                deadline varchar(16) NOT NULL,
+                deadline text NOT NULL,
                 priority integer DEFAULT 3,
                 status integer DEFAULT 0)
                 """
