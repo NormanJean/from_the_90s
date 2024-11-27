@@ -26,9 +26,9 @@ class Task:
     #
     # def get_overdue(self):
     #     self.cursor.execute('SELECT deadline, name, description, priority, status FROM tasks WHERE status = ?', (None,))
-    def check(self):
-        d = date.today
-        self.cursor.execute("SELECT deadline FROM tasks WHERE deadline < ?", (d))
+    # def check(self):
+    #     d = date.today
+    #     self.cursor.execute("SELECT deadline FROM tasks WHERE deadline < ?", (d))
 
     def update_task(self, new_name, new_description, new_deadline, new_priority, name):
         self.cursor.execute("UPDATE tasks SET name = ?, description = ?, deadline = ?, priority = ? WHERE name = ?", (new_name, new_description, new_deadline, new_priority, name))
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     task = Task()
     print('Ваши задачи:')
     print()
-    task.check()
+    # task.check()
     task.get_all()
 
     start = 'да'

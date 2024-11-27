@@ -2,7 +2,7 @@ import sqlite3
 
 
 def create_db():
-    with sqlite3.connect("todo_db.db") as connection:
+    with sqlite3.connect("tests/todo_db.db") as connection:
         cursor = connection.cursor()
         try:
             cursor.execute(
