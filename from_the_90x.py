@@ -1,19 +1,39 @@
 import sqlite3
 from datetime import date
-from create_db  import create_db
-
+from create_db import create_db
+from typing import Union
+from typing import Any
 
 class Task:
+    """Класс инициализирует подключение с БД."""
     def __init__(self):
         with sqlite3.connect("todo_db.db") as self.conn:
             self.cursor = self.conn.cursor()
 
-    def check(self, date):
-        self.cursor.execute("UPDATE tasks SET status = NULL WHERE deadline < ? AND status == 0", (str(date),))
+    def check(self, date: Any):
+        """Метод проверяет задачи на выполнение.
+
+        Args:
+            date: Параметр текущего времени модуля DateTime.
+
+        Returns:
+            Объект NULL, записываемый в БД.
+        """
+        self.cursor.execute("""UPDATE tasks SET status = NULL
+                            WHERE deadline < ? AND status == 0""",
+                            (str(date),)
+                            )
         self.conn.commit()
 
     def get_all(self):
-        self.cursor.execute("SELECT deadline, name, description, priority, status, id FROM tasks;")
+        """Метод Возвращает задачи.
+
+        Returns:
+            Кортеж из БД.
+        """
+        self.cursor.execute("""SELECT deadline, name, description,
+                            priority, status, id FROM tasks;"""
+                            )
         for all_tasks in self.cursor.fetchall():
             tasks = {'Deadline:  ': all_tasks[0]}
             tasks['Задача:    '] = all_tasks[1]
@@ -30,26 +50,74 @@ class Task:
                 print(*fields)
             print()
 
-    def add_task(self, name, description, deadline, priority, status):
+    def add_task(self, name: str, description: str, deadline: str,
+                 priority:int, status: bool):
+        """Метод создает новую задачу.
+
+        Args:
+            name: Название задачи.
+            description: Описание задачи.
+            deadline: Срок выполнения.
+            priority: Приоритет выполнения.
+            status: Текущий статус. По дефолту False.
+
+        Returns:
+            Записывает изменения в БД.
+        """
         self.cursor.execute("""INSERT INTO tasks (
-                            name, description, deadline, priority, status) 
+                            name, description, deadline, priority, status)
                             VALUES (?, ?, ?, ?, ?)""",
                             (name, description, deadline, priority, status)
                             )
         self.conn.commit()
 
-    def update_task(self, new_name, new_description, new_deadline, new_priority, id):
-        self.cursor.execute("UPDATE tasks SET id = ?, description = ?, deadline = ?, priority = ? WHERE name = ?", (new_name, new_description, new_deadline, new_priority, id))
+    def update_task(self, new_name: str, new_description: str,
+                    new_deadline: str, new_priority: int, id: int):
+        """Обновляет элементы задачи.
+
+        Args:
+            new_name: Новое название задачи.
+            new_description: Новое описание.
+            new_deadline: Новый срок выполнения.
+            new_priority: Новый приоритет.
+            id: Выбранная задача.
+
+        Returns:
+            Записывает изменения в БД.
+        """
+        self.cursor.execute("""UPDATE tasks SET id = ?, description = ?,
+                            deadline = ?, priority = ? WHERE name = ?""", (
+                            new_name, new_description, new_deadline,
+                            new_priority, id)
+                            )
         self.conn.commit()
 
-    def del_task(self, id):
-        self.cursor.execute("DELETE FROM tasks WHERE id = ?", (id,))
+    def del_task(self, id: int):
+        """Метод удаляет задачу из БД.
+
+        Args:
+            id: Параметр, определяющий удаляемую задачу.
+
+        Returns:
+            Записывает изменения в БД.
+        """
+        self.cursor.execute("DELETE FROM tasks WHERE id = ?", (id,)
+                            )
         self.conn.commit()
 
-    def sort_by(self, by):
-        self.cursor.execute("SELECT deadline, name, description, priority, status, id FROM tasks;")
-        q = sorted(self.cursor.fetchall(), key=lambda x: x[by])
-        for all_tasks in q:
+    def sort_by(self, by: Union[int, str]):
+        """Метод выполняет сортировку задач:
+
+        Args:
+            by: Параметр, по которому осуществляется сортировка.
+
+        Returns:
+            Отсортированный кортеж.
+        """
+        self.cursor.execute("""SELECT deadline, name, description,
+                            priority, status, id FROM tasks;""")
+        queue = sorted(self.cursor.fetchall(), key=lambda x: x[by])
+        for all_tasks in queue:
             tasks = {'Deadline:  ': all_tasks[0]}
             tasks['Задача:    '] = all_tasks[1]
             tasks['Описание:  '] = all_tasks[2]
@@ -65,8 +133,17 @@ class Task:
                 print(*fields)
             print()
 
-    def filter_by(self, by):
-        self.cursor.execute("""SELECT deadline, name, description, priority, status, id
+    def filter_by(self, by: str):
+        """Метод выполняющий фильтрацию.
+
+        Args:
+            by: Параметр, по которому осуществляется фильтрация.
+
+        Returns:
+            Отфильтрованный кортеж из БД.
+        """
+        self.cursor.execute("""SELECT deadline, name, description,
+                            priority, status, id
                             FROM tasks WHERE deadline == ?;""", (by,)
                             )
         for all_tasks in self.cursor.fetchall():
@@ -86,7 +163,14 @@ class Task:
             print()
 
     def get_completed(self):
-        self.cursor.execute("SELECT deadline, name, description, priority, status, id FROM tasks WHERE status = ?", (True,))
+        """Метод, возвращающий выполненные задачи.
+
+        Returns:
+           Задачи с флагом [*] (Выполнено).
+        """
+        self.cursor.execute("""SELECT deadline, name, description,
+                            priority, status, id FROM tasks WHERE status = ?""",
+                            (True,))
         for all_tasks in self.cursor.fetchall():
             tasks = {'Deadline:  ': all_tasks[0]}
             tasks['Задача:    '] = all_tasks[1]
@@ -104,7 +188,14 @@ class Task:
             print()
 
     def get_overdue(self):
-        self.cursor.execute('SELECT deadline, name, description, priority, status, id FROM tasks WHERE status IS NULL')
+        """Метод, возвращающий просроченные задачи.
+
+        Returns:
+            Задачи с флагом [!] (Просрочено).
+        """
+
+        self.cursor.execute("""SELECT deadline, name, description, priority,
+                            status, id FROM tasks WHERE status IS NULL""")
         for all_tasks in self.cursor.fetchall():
             tasks = {'Deadline:  ': all_tasks[0]}
             tasks['Задача:    '] = all_tasks[1]
@@ -121,8 +212,15 @@ class Task:
                 print(*fields)
             print()
 
+    def find_by(self, by: Union[int, str]):
+        """Метод поиска задач.
 
-    def find_by(self, by):
+        Args:
+            by: Имя или id задачи.
+
+        Returns:
+            Задачи, соответствующие совпадению.
+        """
         self.cursor.execute("""SELECT deadline, name, description, priority, status, id
                             FROM tasks WHERE name == ? OR id == ?;""",
                             (by, by)
@@ -143,16 +241,26 @@ class Task:
                 print(*fields)
             print()
 
-    def update_status(self, new_status, id):
-        self.cursor.execute("UPDATE tasks SET status = ? WHERE id = ?",(new_status, id))
+    def update_status(self, new_status: int, id: str):
+        """
+        Метод обновляет статус задачи.
+        Args:
+            new_status: Передает флаг выполненной задачи [*] (выполнено).
+            id: Найденная задача.
+
+        Returns:
+            Записывает изменения в БД.
+        """
+        self.cursor.execute("""UPDATE tasks SET status = ? WHERE id = ?""",
+                            (new_status, id))
         self.conn.commit()
 
 
 if __name__ == '__main__':
     create_db()
-    task = Task()
+    task: Task = Task()
     task.check(date.today())
-    todo = 1
+    todo: int = 1
     while todo != 0:
         print('Главное меню >>>>>')
         print('')
@@ -162,49 +270,50 @@ if __name__ == '__main__':
               '4 - Удалить задачу', '5 - Отсортировать', '6 - Отфильтровать',
               '7 - Найти',   sep='\n')
         print('------------------')
-        print('0 - Завершить','\n')
-
-        action = input('Ввод 0 - 7: ')
+        print('0 - Завершить', '\n')
+        action: str = input('Ввод 0 - 7: ')
         match action:
             case '1':
                 print()
                 print('Ваши задачи:')
                 task.get_all()
             case '2':
-                start = 'да'
+                start: str = 'да'
                 while start == 'да':
-                    name = input('Задача: ')
-                    description = input('Описание задачи: ')
-                    deadline = input('Выполнить до (ГГГГ-ММ-ДД): ')
+                    name: str = input('Задача: ')
+                    description: str = input('Описание задачи: ')
+                    deadline: str = input('Выполнить до (ГГГГ-ММ-ДД): ')
                     try:
-                        priority = int(input('Приоритет задачи: '))
+                        priority: int = int(input('Приоритет задачи: '))
                     except:
                         priority = 3
 
                     while priority > 5 or priority < 1:
                         try:
-                            priority = int(input('Укажите число в диапазоне < 1 - 5 >: '))
+                            priority = int(input('''Укажите число в диапазоне
+                                                 < 1 - 5 >: '''))
                         except:
                             priority = 3
 
-                    status = False
+                    status: bool = False
                     print('Добавить новую задачу? ')
-                    start = input('да/нет: ')
+                    start: str = input('да/нет: ')
                     if start == 'да':
-                        task.add_task(name, description, deadline, priority, status)
+                        task.add_task(name, description,
+                                      deadline, priority, status)
                         break
                 else:
                     break
 
             case '3':
-                start = 'да'
+                start: str = 'да'
                 while start == 'да':
-                    id = input('ID задачи для изменения: ')
-                    name = input('Задача: ')
-                    description = input('Описание задачи: ')
-                    deadline = input('Выполнить до (ГГГГ-ММ-ДД): ')
+                    id: int = input('ID задачи для изменения: ')
+                    name: str = input('Задача: ')
+                    description: str = input('Описание задачи: ')
+                    deadline: str = input('Выполнить до (ГГГГ-ММ-ДД): ')
                     try:
-                        priority = int(input('Приоритет задачи: '))
+                        priority: str = int(input('Приоритет задачи: '))
                     except:
                         priority = 3
 
@@ -216,17 +325,18 @@ if __name__ == '__main__':
                     print('Обновить задачу? ')
                     start = input('да/нет: ')
                     if start == 'да':
-                        task.update_task(name, description, deadline, priority, id)
+                        task.update_task(name, description,
+                                         deadline, priority, id)
                         break
                     else:
                         break
 
             case '4':
-                start = 'да'
+                start: str = 'да'
                 while start == 'да':
-                    id = input('ID задачи для удаления: ')
+                    id: int = input('ID задачи для удаления: ')
                     print('Удалить задачу? ')
-                    start = input('да/нет: ')
+                    start: str = input('да/нет: ')
                     if start == 'да':
                         task.del_task(id)
                         break
@@ -234,10 +344,10 @@ if __name__ == '__main__':
                         break
 
             case '5':
-                checks = True
+                checks: bool = True
                 while checks is True:
                     try:
-                        by = input('Сортировка по: ')
+                        by: str = input('Сортировка по: ')
                         match by:
                             case 'Deadline':
                                 by = 0
@@ -262,7 +372,7 @@ if __name__ == '__main__':
                 print('1 - По крайней дате')
                 print('2 - По выполненным')
                 print('3 - По просроченным', '\n')
-                filter = input('Выберите фильтр 1-3: ')
+                filter: str = input('Выберите фильтр 1-3: ')
                 try:
                     if filter == '1':
                         by = input('Введите число (ГГГГ-ММ-ДД): ')
@@ -276,11 +386,11 @@ if __name__ == '__main__':
                     print(type(ex))
 
             case '7':
-                by = input('Найти (id OR name): ')
+                by: str = input('Найти (id OR name): ')
                 task.find_by(by)
                 print('Поставить флаг выполнения? [*]')
                 # a = input(f'[{input()}]')
-                flag = input()
+                flag: str = input()
                 if flag == '*':
                     task.update_status(1, by)
             case '0':
