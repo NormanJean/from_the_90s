@@ -7,7 +7,7 @@ from typing import Any
 class Task:
     """Класс инициализирует подключение с БД."""
     def __init__(self):
-        with sqlite3.connect("todo_db.db") as self.conn:
+        with sqlite3.connect("todo.db") as self.conn:
             self.cursor = self.conn.cursor()
 
     def check(self, date: Any):
@@ -85,8 +85,8 @@ class Task:
         Returns:
             Записывает изменения в БД.
         """
-        self.cursor.execute("""UPDATE tasks SET id = ?, description = ?,
-                            deadline = ?, priority = ? WHERE name = ?""", (
+        self.cursor.execute("""UPDATE tasks SET name = ?, description = ?,
+                            deadline = ?, priority = ? WHERE id = ?""", (
                             new_name, new_description, new_deadline,
                             new_priority, id)
                             )
@@ -278,33 +278,24 @@ if __name__ == '__main__':
                 print('Ваши задачи:')
                 task.get_all()
             case '2':
-                start: str = 'да'
-                while start == 'да':
-                    name: str = input('Задача: ')
-                    description: str = input('Описание задачи: ')
-                    deadline: str = input('Выполнить до (ГГГГ-ММ-ДД): ')
+                name: str = input('Задача: ')
+                description: str = input('Описание задачи: ')
+                deadline: str = input('Выполнить до (ГГГГ-ММ-ДД): ')
+                try:
+                    priority: int = int(input('Приоритет задачи: '))
+                except:
+                    priority = 3
+
+                while priority > 5 or priority < 1:
                     try:
-                        priority: int = int(input('Приоритет задачи: '))
+                        priority = int(input('''Укажите число в диапазоне
+                                             < 1 - 5 >: '''))
                     except:
                         priority = 3
 
-                    while priority > 5 or priority < 1:
-                        try:
-                            priority = int(input('''Укажите число в диапазоне
-                                                 < 1 - 5 >: '''))
-                        except:
-                            priority = 3
-
-                    status: bool = False
-                    print('Добавить новую задачу? ')
-                    start: str = input('да/нет: ')
-                    if start == 'да':
-                        task.add_task(name, description,
-                                      deadline, priority, status)
-                        break
-                else:
-                    break
-
+                status: bool = False
+                task.add_task(name, description,
+                              deadline, priority, status)
             case '3':
                 start: str = 'да'
                 while start == 'да':
