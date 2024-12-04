@@ -1,8 +1,10 @@
+import os
 import sqlite3
 from datetime import date
+from typing import Any, Union
+
 from create_db import create_db
-from typing import Union
-from typing import Any
+
 
 class Task:
     """Класс инициализирует подключение с БД."""
@@ -123,11 +125,11 @@ class Task:
             tasks['Описание:  '] = all_tasks[2]
             tasks['Приоритет: '] = all_tasks[3]
             if all_tasks[4] == 1:
-                tasks['Статус:    '] = 'Выполнено'
+                tasks['Статус:    '] = '[*]'
             elif all_tasks[4] == 0:
-                tasks['Статус:    '] = 'Не выполнено'
+                tasks['Статус:    '] = '[ ]'
             else:
-                tasks['Статус:    '] = 'Просрочено'
+                tasks['Статус:    '] = '[!]'
             tasks['id:        '] = all_tasks[5]
             for fields in tasks.items():
                 print(*fields)
@@ -274,10 +276,12 @@ if __name__ == '__main__':
         action: str = input('Ввод 0 - 7: ')
         match action:
             case '1':
+                os.system('cls')
                 print()
                 print('Ваши задачи:')
                 task.get_all()
             case '2':
+                os.system('cls')
                 name: str = input('Задача: ')
                 description: str = input('Описание задачи: ')
                 deadline: str = input('Выполнить до (ГГГГ-ММ-ДД): ')
@@ -297,6 +301,7 @@ if __name__ == '__main__':
                 task.add_task(name, description,
                               deadline, priority, status)
             case '3':
+                os.system('cls')
                 start: str = 'да'
                 while start == 'да':
                     id: int = input('ID задачи для изменения: ')
@@ -323,6 +328,7 @@ if __name__ == '__main__':
                         break
 
             case '4':
+                os.system('cls')
                 start: str = 'да'
                 while start == 'да':
                     id: int = input('ID задачи для удаления: ')
@@ -335,6 +341,7 @@ if __name__ == '__main__':
                         break
 
             case '5':
+                os.system('cls')
                 checks: bool = True
                 while checks is True:
                     try:
@@ -359,6 +366,7 @@ if __name__ == '__main__':
                         print('Введите наименование поля')
 
             case '6':
+                os.system('cls')
                 print('Фильтры:')
                 print('1 - По крайней дате')
                 print('2 - По выполненным')
@@ -377,6 +385,7 @@ if __name__ == '__main__':
                     print(type(ex))
 
             case '7':
+                os.system('cls')
                 by: str = input('Найти (id OR name): ')
                 task.find_by(by)
                 print('Поставить флаг выполнения? [*]')
